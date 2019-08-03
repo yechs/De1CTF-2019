@@ -33,16 +33,21 @@ class Task:
         if (self.checkSign()):
             if "scan" in self.action:
                 tmpfile = open("./%s/result.txt" % self.sandbox, 'w')
+
+                # opens file located at self.param
                 resp = scan(self.param)
+
                 if (resp == "Connection Timeout"):
                     result['data'] = resp
                 else:
+                    # writes to temp file
                     print resp tmpfile.write(resp)
 
                 tmpfile.close()
                 result['code'] = 200
 
             if "read" in self.action:
+                # opens the temp file containing content from scan()
                 f = open("./%s/result.txt" % self.sandbox, 'r')
                 result['code'] = 200
                 result['data'] = f.read()
@@ -66,6 +71,7 @@ class Task:
 def geneSign():
     param = urllib.unquote(request.args.get("param", ""))
     action = "scan"
+    # return md5 for (secert_key + param + action)
     return getSign(action, param)
 
 @app.route('/De1ta',methods=['GET','POST'])
@@ -76,6 +82,7 @@ def challenge():
     ip = request.remote_addr
 
     if(waf(param)):
+        # If uri begins with gopher or file
         return "No Hacker!!!!"
 
     task = Task(action, param, sign, ip)
